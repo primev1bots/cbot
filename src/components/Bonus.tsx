@@ -104,7 +104,7 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
   const pageSize = 3;
 
   // Backend server URL
-  const BACKEND_URL = 'https://51217fce-8f72-45eb-948a-ae503f979927.e1-us-east-azure.choreoapps.dev';
+  const BACKEND_URL = 'https://e03cc376-f1c1-4fb9-b782-38e312bf76f0.e1-us-east-azure.choreoapps.dev';
 
   useEffect(() => {
     // Load tasks from Firebase
