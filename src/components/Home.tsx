@@ -89,9 +89,9 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
   });
 
   // Define the zone IDs and app UIDs
-  const MONETAG_ZONE_ID = "9878570";
+  const MONETAG_ZONE_ID = "9673543";
   const ADSOVIO_APP_UID = "5430";
-  const ADEXORA_APP_ID = "387";
+  const ADEXORA_APP_ID = "1028";
 
   // Load ad configuration from Firebase
   useEffect(() => {
@@ -146,7 +146,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       const scriptId = `monetag-sdk-${MONETAG_ZONE_ID}`;
 
       if (document.getElementById(scriptId)) {
-        if (typeof (window as any).show_9878570 === 'function') {
+        if (typeof (window as any).show_9673543 === 'function') {
           setSdkLoaded(prev => ({ ...prev, monetag: true }));
           resolve();
         } else {
@@ -163,7 +163,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       script.async = true;
 
       script.onload = () => {
-        if (typeof (window as any).show_9878570 === 'function') {
+        if (typeof (window as any).show_9673543 === 'function') {
           setSdkLoaded(prev => ({ ...prev, monetag: true }));
           resolve();
         } else {
