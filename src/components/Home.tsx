@@ -53,7 +53,7 @@ interface AdsConfig {
 // Define the window interface to include the dynamically created SDK functions
 declare global {
   interface Window {
-    show_9878570?: () => Promise<void>; // Monetag function name based on zone ID 9878570
+    show_9673543?: () => Promise<void>; // Monetag function name based on zone ID 9878570
     showAdsovio?: () => Promise<void>;  // Adsovio function name
     showAdexora: () => Promise<void>;  // Adexora function name
   }
