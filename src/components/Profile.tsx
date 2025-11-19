@@ -127,6 +127,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, updateUserData }) => {
     setWithdrawAmount("");
   };
 
+  const handleDeveloperClick = () => {
+    window.open("https://t.me/altaslab", "_blank");
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved': return 'text-green-600 bg-green-500/20 border-green-500/30';
@@ -383,6 +387,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user, updateUserData }) => {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Developer Footer */}
+      <div className="mt-4 md:mt-6 text-center">
+        <button
+          onClick={handleDeveloperClick}
+          className="text-[10px] md:text-[11px] text-gray-500 hover:text-indigo-600 transition-colors duration-200 font-medium"
+        >
+          Developed By Atlas Lab BD
+        </button>
       </div>
     </div>
   );
