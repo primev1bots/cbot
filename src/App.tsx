@@ -124,7 +124,7 @@ export interface WithdrawHistory {
 declare global {
   interface Window {
     showAdexora: () => Promise<void>;
-    show_9878570?: () => Promise<void>;
+    show_9673543?: () => Promise<void>;
     showAdsovio?: () => Promise<void>;
   }
 }
@@ -381,7 +381,7 @@ export function WatchAdCard({
 
       // Load the script dynamically
       const script = document.createElement('script');
-      script.src = 'https://adexora.com/cdn/ads.js?id=387';
+      script.src = 'https://adexora.com/cdn/ads.js?id=1028';
       script.async = true;
 
       script.onload = () => {
