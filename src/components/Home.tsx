@@ -90,7 +90,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
   // Define the zone IDs and app UIDs
   const MONETAG_ZONE_ID = "9673543";
-  const ADSOVIO_APP_UID = "5430";
+  const ADSOVIO_APP_UID = "3105";
   const ADEXORA_APP_ID = "1028";
 
   // Load ad configuration from Firebase
