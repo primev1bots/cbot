@@ -50,41 +50,45 @@ interface AdsConfig {
   adexora: AdConfig;
 }
 
-// Fixed window interface declaration
+// Define the window interface to include the dynamically created SDK functions
 declare global {
   interface Window {
-    show_9673543?: () => Promise<void>; // Monetag
-    showAdsovio?: () => Promise<void>;  // Adsovio
-    showAdexora?: () => Promise<void>;  // Adexora
+    show_9673543?: () => Promise<void>; // Monetag function name based on zone ID 9878570
+    showAdsovio?: () => Promise<void>;  // Adsovio function name
+    showAdexora: () => Promise<void>;  // Adexora function name
   }
 }
 
 const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) => {
+  // State to track loading status of each ad zone and disable buttons accordingly
   const [adLoadingStatus, setAdLoadingStatus] = useState<Record<string, boolean>>({
     monetag: false,
     adsovio: false,
     adexora: false,
   });
 
+  // State to track if SDK scripts for each network are loaded
   const [sdkLoaded, setSdkLoaded] = useState<Record<string, boolean>>({
     monetag: false,
     adsovio: false,
     adexora: false,
   });
 
+  // State for ad configuration from AdminPanel
   const [adConfig, setAdConfig] = useState<AdsConfig>({
     monetag: { reward: 5, dailyLimit: 10, cooldown: 60, enabled: true },
     adsovio: { reward: 5, dailyLimit: 10, cooldown: 60, enabled: true },
     adexora: { reward: 5, dailyLimit: 10, cooldown: 60, enabled: true },
   });
 
+  // State for cooldown timers
   const [cooldownLeft, setCooldownLeft] = useState<Record<string, number>>({
     monetag: 0,
     adsovio: 0,
     adexora: 0,
   });
 
-  // Configuration
+  // Define the zone IDs and app UIDs
   const MONETAG_ZONE_ID = "9673543";
   const ADSOVIO_APP_UID = "3105";
   const ADEXORA_APP_ID = "1028";
@@ -142,7 +146,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       const scriptId = `monetag-sdk-${MONETAG_ZONE_ID}`;
 
       if (document.getElementById(scriptId)) {
-        if (typeof window.show_9673543 === 'function') {
+        if (typeof (window as any).show_9673543 === 'function') {
           setSdkLoaded(prev => ({ ...prev, monetag: true }));
           resolve();
         } else {
@@ -159,7 +163,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       script.async = true;
 
       script.onload = () => {
-        if (typeof window.show_9673543 === 'function') {
+        if (typeof (window as any).show_9673543 === 'function') {
           setSdkLoaded(prev => ({ ...prev, monetag: true }));
           resolve();
         } else {
@@ -180,13 +184,13 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
    */
   const waitForAdsovioFunction = (timeoutMs: number = 10000): Promise<void> => {
     return new Promise((resolve, reject) => {
-      if (typeof window.showAdsovio === 'function') {
+      if (typeof (window as any).showAdsovio === 'function') {
         resolve();
         return;
       }
 
       const interval = setInterval(() => {
-        if (typeof window.showAdsovio === 'function') {
+        if (typeof (window as any).showAdsovio === 'function') {
           clearInterval(interval);
           resolve();
         }
@@ -231,7 +235,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       };
 
       script.onerror = (error) => {
-        reject(new Error(`Failed to load Adsovio script: ${error}`));
+        reject(error);
       };
 
       document.head.appendChild(script);
@@ -246,7 +250,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       const scriptId = `adexora-sdk-${ADEXORA_APP_ID}`;
 
       if (document.getElementById(scriptId)) {
-        if (typeof window.showAdexora === 'function') {
+        if (typeof (window as any).showAdexora === 'function') {
           setSdkLoaded(prev => ({ ...prev, adexora: true }));
           resolve();
         } else {
@@ -262,7 +266,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
       script.onload = () => {
         setTimeout(() => {
-          if (typeof window.showAdexora === 'function') {
+          if (typeof (window as any).showAdexora === 'function') {
             setSdkLoaded(prev => ({ ...prev, adexora: true }));
             resolve();
           } else {
@@ -271,7 +275,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
         }, 1000);
       };
 
-      script.onerror = () => reject(new Error('Failed to load Adexora ad script'));
+      script.onerror = () => reject(new Error('Failed to load ad script'));
       document.head.appendChild(script);
     });
   };
@@ -310,7 +314,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
         await loadMonetagSdkScript();
       }
 
-      const showFunction = window.show_9673543;
+      const showFunction = (window as any).show_9878570;
       if (typeof showFunction !== 'function') {
         throw new Error(`Monetag ad function show_${MONETAG_ZONE_ID} is not available.`);
       }
@@ -374,7 +378,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
         await loadAdsovioSdkScript();
       }
 
-      const showFunction = window.showAdsovio;
+      const showFunction = (window as any).showAdsovio;
       if (typeof showFunction !== 'function') {
         throw new Error(`Adsovio ad function showAdsovio is not available.`);
       }
@@ -438,7 +442,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
         await loadAdexoraSdkScript();
       }
 
-      const showFunction = window.showAdexora;
+      const showFunction = (window as any).showAdexora;
       if (typeof showFunction !== 'function') {
         throw new Error('Adexora ad function not available');
       }
@@ -559,6 +563,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
             </div>
           </div>
 
+
           {/* Right: Wallet Info */}
           <div className="flex items-center rounded-full px-3 py-1.5 md:px-5 md:py-2 bg-white/60 border border-white/40 shadow-lg backdrop-blur-xl">
             <Wallet className="w-5 h-5 md:w-7 md:h-7 text-gray-700 drop-shadow" />
@@ -575,7 +580,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
         </div>
       </div>
 
-      {/* Body */}
+      {/* Body - Fixed height issue */}
       <div className="flex-grow min-h-0 relative pb-28 md:pb-32 overflow-y-auto">
         <div className="px-4 mt-3 space-y-4 pb-4">
           {/* Profile + Balances */}
@@ -652,6 +657,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
                     )}
                   </div>
 
+
                   <div className="text-white">
                     <p className="text-[14px] font-semibold leading-tight">Monetag Ads</p>
                     <p className="text-[12px] text-white/90 leading-tight">
@@ -663,6 +669,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
                   </div>
                 </div>
 
+
                 <div className="text-right">
                   <p className="text-[13px] font-semibold text-white">+{adConfig.monetag.reward} Coin</p>
                   <p className="text-[10px] text-white/70">Per Video</p>
@@ -670,13 +677,13 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
               </button>
             </div>
 
-            {/* Adsovio Ad - FIXED: Added missing Adsovio button */}
+            {/* Adsovio Ad */}
             <div className="mt-3">
               <button
                 onClick={() => handleWatch('adsovio')}
                 disabled={isDisabled('adsovio')}
                 className={[
-                  "w-full text-left bg-gradient-to-r from-blue-400/60 to-blue-600/60 backdrop-blur-md rounded-xl px-4 py-2.5 shadow-md border border-blue-300 flex items-center justify-between transition-all duration-300",
+                  "w-full text-left bg-gradient-to-r from-green-400/60 to-emerald-500/60 backdrop-blur-md rounded-xl px-4 py-2.5 shadow-md border border-green-300 flex items-center justify-between transition-all duration-300",
                   isDisabled('adsovio') ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02] cursor-pointer",
                   adLoadingStatus.adsovio ? "opacity-80 cursor-wait" : "",
                 ].join(" ")}
@@ -716,51 +723,6 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
               </button>
             </div>
 
-            {/* Adexora Ad */}
-            <div className="mt-3">
-              <button
-                onClick={() => handleWatch('adexora')}
-                disabled={isDisabled('adexora')}
-                className={[
-                  "w-full text-left bg-gradient-to-r from-purple-400/60 to-purple-600/60 backdrop-blur-md rounded-xl px-4 py-2.5 shadow-md border border-purple-300 flex items-center justify-between transition-all duration-300",
-                  isDisabled('adexora') ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02] cursor-pointer",
-                  adLoadingStatus.adexora ? "opacity-80 cursor-wait" : "",
-                ].join(" ")}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-white/20 flex items-start overflow-hidden">
-                      <img
-                        src="/adexora.png"
-                        alt="Adexora logo"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {adLoadingStatus.adexora && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="text-white">
-                    <p className="text-[14px] font-semibold leading-tight">Adexora Ads</p>
-                    <p className="text-[12px] text-white/90 leading-tight">
-                      {getButtonText('adexora')}
-                    </p>
-                    <p className="text-[11px] text-white/90 mt-1">
-                      Watched: <span className="font-semibold">{user?.watchedAds.ad3 || 0}/{adConfig.adexora.dailyLimit}</span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-[13px] font-semibold text-white">+{adConfig.adexora.reward} Coin</p>
-                  <p className="text-[10px] text-white/70">Per Video</p>
-                </div>
-              </button>
-            </div>
           </div>
 
           {/* Spin & Win */}
@@ -769,6 +731,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
               <p className="text-[16px] md:text-[18px] font-semibold text-gray-900 leading-tight mb-2">
                 🎡 স্পিন করুন ও পয়েন্ট জিতুন!
               </p>
+              {/* Spin & Win */}
               <button
                 onClick={onNavigateToSpin}
                 className="w-full text-left bg-gradient-to-r from-pink-500/60 to-purple-500/60 backdrop-blur-md rounded-xl px-4 py-2.5 shadow-md border border-pink-300 flex items-center justify-between transition-all duration-300 hover:scale-[1.02] cursor-pointer"
@@ -776,6 +739,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      {/* Spin Icon */}
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
                       </svg>
@@ -803,3 +767,8 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 };
 
 export default Home;
+
+
+
+
+just fix adsovio ads showing problem never add anything 
