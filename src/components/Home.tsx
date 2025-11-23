@@ -769,6 +769,4 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 export default Home;
 
 
-
-
-just fix adsovio ads showing problem never add anything 
+ 
