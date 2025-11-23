@@ -163,7 +163,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       script.async = true;
 
       script.onload = () => {
-        if (typeof (window as any).show_9673543 === 'function') {
+        if (typeof (window as any).show_9669121 === 'function') {
           setSdkLoaded(prev => ({ ...prev, monetag: true }));
           resolve();
         } else {
