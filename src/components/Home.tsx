@@ -89,7 +89,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
   });
 
   // Define the zone IDs and app UIDs
-  const MONETAG_ZONE_ID = "9673543";
+  const MONETAG_ZONE_ID = "9669121";
   const ADSOVIO_APP_UID = "3105";
   const ADEXORA_APP_ID = "1028";
 
@@ -146,7 +146,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
       const scriptId = `monetag-sdk-${MONETAG_ZONE_ID}`;
 
       if (document.getElementById(scriptId)) {
-        if (typeof (window as any).show_9673543 === 'function') {
+        if (typeof (window as any).show_9669121 === 'function') {
           setSdkLoaded(prev => ({ ...prev, monetag: true }));
           resolve();
         } else {
@@ -314,7 +314,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
         await loadMonetagSdkScript();
       }
 
-      const showFunction = (window as any).show_9878570;
+      const showFunction = (window as any).show_9669121;
       if (typeof showFunction !== 'function') {
         throw new Error(`Monetag ad function show_${MONETAG_ZONE_ID} is not available.`);
       }
