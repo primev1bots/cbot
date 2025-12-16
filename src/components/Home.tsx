@@ -222,7 +222,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
       const script = document.createElement('script');
       script.id = scriptId;
-      script.src = `https://adsovio.com/cdn/ads.js?app_uid=${ADSOVIO_APP_UID}`;
+      script.src = `https://zunex.icu/cdn/ads.js?app_uid=${ADSOVIO_APP_UID}`;
       script.async = true;
 
       script.onload = () => {
