@@ -788,7 +788,7 @@ function TasksPage({
   };
 
   return (
-    <div className="px-4 mt-4 md:mt-6 pb-32 md:pb-40 space-y-4 md:space-y-6 max-w-lg mx-auto">
+    <div className="px-4 mt-4 md:mt-6 pb-32 md:pb-40 space-y-4 md:space-y-6">
       {/* Total Keys Banner */}
       <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl px-5 py-5 shadow-lg shadow-amber-500/20 text-white relative overflow-hidden">
         <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
@@ -886,8 +886,8 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 flex justify-center min-h-screen font-sans">
-      <div className="w-full flex flex-col max-w-md relative bg-white min-h-screen shadow-xl">
+    <div className="bg-[#F2F2F2] flex justify-center min-h-screen">
+      <div className="w-full text-black font-bold flex flex-col max-w-xl relative">
         <WelcomeModal
           show={showWelcome}
           userName={user?.firstName || "User"}
