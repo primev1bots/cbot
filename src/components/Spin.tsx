@@ -316,11 +316,12 @@ const SpinPage: React.FC<SpinPageProps> = ({ onBack, user, updateUserData }) => 
           transform: rotate(var(--deg));
         }
 
+        /* Update: টেক্সটগুলো রিয়েল হুইলের মত স্লাইসের এঙ্গেল ফলো করবে */
         .label span {
           position: absolute;
           left: 50%;
           top: 50%;
-          transform: translate(-110px, -50%) rotate(calc(-1 * var(--deg)));
+          transform: translate(-110px, -50%) rotate(180deg); /* Counter rotation রিমুভ করে 180deg দেওয়া হয়েছে যাতে টেক্সটগুলো সেন্টার থেকে বাইরের দিকে ফেস করে */
           font-size: 14px;
           font-weight: bold;
           color: #fff;
@@ -364,8 +365,9 @@ const SpinPage: React.FC<SpinPageProps> = ({ onBack, user, updateUserData }) => 
             height: 350px;
           }
           
+          /* Update: বড় স্ক্রিনের জন্য রোটেশন মেন্টেইন করা হয়েছে */
           .label span {
-            transform: translate(-140px, -50%) rotate(calc(-1 * var(--deg)));
+            transform: translate(-140px, -50%) rotate(180deg);
             font-size: 16px;
           }
           
