@@ -625,18 +625,20 @@ export function DirectTaskItem({
 
   return (
     <div className={`w-full text-left rounded-2xl p-4 shadow-sm border transition-all duration-300 ${claimed ? 'bg-gray-50/80 border-gray-200 opacity-75' : 'bg-white border-blue-100 hover:shadow-md hover:border-blue-300'}`}>
-      <div className="flex items-center gap-3">
+      {/* Changed items-center to items-start here so icon stays at top if text wraps */}
+      <div className="flex items-start gap-3">
         {/* Visual Identity / Icon */}
         <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${claimed ? 'bg-green-100 text-green-500' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
           {claimed ? <CheckCircle className="w-5 h-5" /> : icon}
         </div>
 
         {/* Info Block */}
-        <div className="flex-1 min-w-0">
-          <h3 className={`text-[15px] font-bold truncate ${claimed ? 'text-gray-500 line-through' : 'text-gray-800'}`}>
+        <div className="flex-1 min-w-0 pt-0.5">
+          {/* Removed truncate so the title can be fully visible and wrap */}
+          <h3 className={`text-[15px] font-bold break-words whitespace-normal leading-snug ${claimed ? 'text-gray-500 line-through' : 'text-gray-800'}`}>
             {title}
           </h3>
-          <div className="mt-1 flex items-center gap-2">
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
             <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wide ${claimed ? 'bg-gray-200 text-gray-500' : 'bg-green-100 text-green-700 border border-green-200'}`}>
               {rewardLabel}
             </span>
@@ -649,7 +651,7 @@ export function DirectTaskItem({
         </div>
 
         {/* Call to Action Button */}
-        <div className="flex-shrink-0 ml-2">
+        <div className="flex-shrink-0 ml-2 mt-1">
           {claimed ? (
             <span className="text-[12px] font-bold text-green-600 flex items-center gap-1 bg-green-50 px-3 py-1.5 rounded-lg border border-green-100">
               <Sparkles className="w-3.5 h-3.5" /> Claimed
@@ -788,6 +790,7 @@ function TasksPage({
   };
 
   return (
+    // Removed max-w-lg mx-auto to fix responsive layout
     <div className="px-4 mt-4 md:mt-6 pb-32 md:pb-40 space-y-4 md:space-y-6">
       {/* Total Keys Banner */}
       <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl px-5 py-5 shadow-lg shadow-amber-500/20 text-white relative overflow-hidden">
@@ -885,9 +888,10 @@ const App: React.FC = () => {
     );
   }
 
+  // Restored original layout structure for perfect responsiveness
   return (
     <div className="bg-[#F2F2F2] flex justify-center min-h-screen">
-      <div className="w-full text-black font-bold flex flex-col max-w-xl relative">
+      <div className="w-full text-black font-bold flex flex-col max-w-xl relative shadow-xl min-h-screen bg-white">
         <WelcomeModal
           show={showWelcome}
           userName={user?.firstName || "User"}
