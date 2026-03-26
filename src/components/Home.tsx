@@ -29,6 +29,7 @@ interface UserData {
     adsovio?: string;
     adexora?: string;
   };
+  lastAdResetDate?: string; // Track when the ads were last reset
 }
 
 interface HomeProps {
@@ -109,6 +110,53 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
     return () => unsubscribe();
   }, []);
+
+  // Check and Reset Ad limits at 6:00 AM BDT
+  useEffect(() => {
+    if (!user) return;
+
+    const getAdDayBDT = () => {
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Dhaka',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+
+      const parts = formatter.formatToParts(now);
+      const bdtMap: Record<string, string> = {};
+      parts.forEach(p => { bdtMap[p.type] = p.value; });
+
+      const bdtDate = new Date(
+        parseInt(bdtMap.year),
+        parseInt(bdtMap.month) - 1,
+        parseInt(bdtMap.day),
+        parseInt(bdtMap.hour),
+        parseInt(bdtMap.minute),
+        parseInt(bdtMap.second)
+      );
+
+      // Subtract 6 hours. This makes any time before 6:00 AM count as "yesterday".
+      bdtDate.setHours(bdtDate.getHours() - 6);
+
+      // Return a formatted logical date string (YYYY-MM-DD)
+      return `${bdtDate.getFullYear()}-${String(bdtDate.getMonth() + 1).padStart(2, '0')}-${String(bdtDate.getDate()).padStart(2, '0')}`;
+    };
+
+    const currentAdDay = getAdDayBDT();
+
+    if (user.lastAdResetDate !== currentAdDay) {
+      updateUserData({
+        watchedAds: { ad1: 0, ad2: 0, ad3: 0 },
+        lastAdResetDate: currentAdDay
+      });
+    }
+  }, [user?.lastAdResetDate, updateUserData]);
 
   // Calculate cooldown timers
   useEffect(() => {
@@ -288,7 +336,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
     const provider: keyof AdsConfig = 'monetag';
     const config = adConfig[provider];
-    const currentWatched = user.watchedAds.ad1;
+    const currentWatched = user.watchedAds?.ad1 || 0;
 
     if (!config.enabled) {
       alert('Monetag ads are currently disabled.');
@@ -352,7 +400,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
     const provider: keyof AdsConfig = 'adsovio';
     const config = adConfig[provider];
-    const currentWatched = user.watchedAds.ad2;
+    const currentWatched = user.watchedAds?.ad2 || 0;
 
     if (!config.enabled) {
       alert('Adsovio ads are currently disabled.');
@@ -416,7 +464,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
     const provider: keyof AdsConfig = 'adexora';
     const config = adConfig[provider];
-    const currentWatched = user.watchedAds.ad3;
+    const currentWatched = user.watchedAds?.ad3 || 0;
 
     if (!config.enabled) {
       alert('Adexora ads are currently disabled.');
@@ -489,9 +537,9 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
   const isDisabled = (provider: keyof AdsConfig) => {
     const config = adConfig[provider];
     const watchedCount =
-      provider === 'monetag' ? user?.watchedAds.ad1 || 0 :
-        provider === 'adsovio' ? user?.watchedAds.ad2 || 0 :
-          user?.watchedAds.ad3 || 0;
+      provider === 'monetag' ? user?.watchedAds?.ad1 || 0 :
+        provider === 'adsovio' ? user?.watchedAds?.ad2 || 0 :
+          user?.watchedAds?.ad3 || 0;
 
     return !config.enabled ||
       watchedCount >= config.dailyLimit ||
@@ -507,9 +555,9 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
     if (adLoadingStatus[provider]) return "Loading ad...";
 
     const watchedCount =
-      provider === 'monetag' ? user?.watchedAds.ad1 || 0 :
-        provider === 'adsovio' ? user?.watchedAds.ad2 || 0 :
-          user?.watchedAds.ad3 || 0;
+      provider === 'monetag' ? user?.watchedAds?.ad1 || 0 :
+        provider === 'adsovio' ? user?.watchedAds?.ad2 || 0 :
+          user?.watchedAds?.ad3 || 0;
 
     if (watchedCount >= config.dailyLimit) return "Daily Limit Reached";
     return "Watch Video Ad";
@@ -664,7 +712,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
                       {getButtonText('monetag')}
                     </p>
                     <p className="text-[11px] text-white/90 mt-1">
-                      Watched: <span className="font-semibold">{user?.watchedAds.ad1 || 0}/{adConfig.monetag.dailyLimit}</span>
+                      Watched: <span className="font-semibold">{user?.watchedAds?.ad1 || 0}/{adConfig.monetag.dailyLimit}</span>
                     </p>
                   </div>
                 </div>
@@ -711,7 +759,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
                       {getButtonText('adsovio')}
                     </p>
                     <p className="text-[11px] text-white/90 mt-1">
-                      Watched: <span className="font-semibold">{user?.watchedAds.ad2 || 0}/{adConfig.adsovio.dailyLimit}</span>
+                      Watched: <span className="font-semibold">{user?.watchedAds?.ad2 || 0}/{adConfig.adsovio.dailyLimit}</span>
                     </p>
                   </div>
                 </div>
@@ -767,6 +815,3 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 };
 
 export default Home;
-
-
- 
