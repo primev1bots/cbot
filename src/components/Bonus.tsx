@@ -91,7 +91,6 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
   const [startingTask, setStartingTask] = useState<string | null>(null);
   const [claimingTask, setClaimingTask] = useState<string | null>(null);
   const [pendingTask, setPendingTask] = useState<Task | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [showGiveaway, setShowGiveaway] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [verifyingMembership, setVerifyingMembership] = useState<string | null>(null);
@@ -101,7 +100,6 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
   });
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [claimingAll, setClaimingAll] = useState(false);
-  const pageSize = 3;
 
   // Backend server URL
   const BACKEND_URL = 'http://online-bood.notte.top';
@@ -252,9 +250,6 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
     if (dailyTaskFilter === "All") return currentTasks;
     return currentTasks.filter((t) => t.category === dailyTaskFilter);
   }, [currentTasks, dailyTaskFilter, showGiveaway]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredTasks.length / pageSize));
-  const paginatedTasks = filteredTasks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const giveawayEntryCost = 1;
   const canEnterGiveaway = (user?.diamonds || 0) >= giveawayEntryCost;
@@ -418,7 +413,6 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
     updateUserData(updates);
     setShowGiveaway(true);
     setDailyTaskFilter("All");
-    setCurrentPage(1);
     setShowConfetti(true);
   };
 
@@ -634,7 +628,6 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
                   key={tab}
                   onClick={() => {
                     setDailyTaskFilter(tab as TaskCategory);
-                    setCurrentPage(1);
                     setTaskErrors({});
                   }}
                   className={`flex-1 py-2 md:py-3 rounded-xl text-xs md:text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-1 md:gap-2
@@ -658,7 +651,7 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
                 <div className="w-10 h-10 md:w-12 md:h-12 border-3 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3 md:mb-4"></div>
                 <p className="text-gray-700 font-semibold text-sm md:text-base">Loading tasks...</p>
               </div>
-            ) : paginatedTasks.length === 0 ? (
+            ) : filteredTasks.length === 0 ? (
               <div className="bg-white/80 backdrop-blur-lg rounded-2xl border border-gray-200 p-6 md:p-8 text-center shadow-sm">
                 <FaTasks className="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-2 md:mb-3 opacity-50" />
                 <p className="text-gray-700 font-semibold text-sm md:text-base">
@@ -669,7 +662,7 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
                 </p>
               </div>
             ) : (
-              paginatedTasks.map((task) => {
+              filteredTasks.map((task) => {
                 const completed = user?.tasksCompleted?.[task.id] || 0;
                 const isCompleted = completed > 0;
                 const isPending = pendingTask?.id === task.id;
@@ -843,29 +836,6 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
               })
             )}
           </div>
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center mt-4 md:mt-6 space-x-2 md:space-x-3 mb-4 md:mb-6">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm rounded-lg bg-white/80 text-gray-700 disabled:opacity-40 hover:text-gray-900 hover:bg-white transition-all duration-300 border border-gray-300 shadow-sm"
-              >
-                Previous
-              </button>
-              <span className="text-gray-700 text-xs md:text-sm font-medium min-w-[60px] md:min-w-[80px] text-center">
-                {currentPage} / {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm rounded-lg bg-white/80 text-gray-700 disabled:opacity-40 hover:text-gray-900 hover:bg-white transition-all duration-300 border border-gray-300 shadow-sm"
-              >
-                Next
-              </button>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -938,7 +908,7 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
 
         {/* Tasks List - Only Telegram Tasks with Money Rewards */}
         <div className="space-y-3 md:space-y-4">
-          {paginatedTasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <div className="bg-white/80 backdrop-blur-lg rounded-2xl border border-gray-200 p-6 md:p-8 text-center shadow-sm">
               <FaTelegram className="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-2 md:mb-3 opacity-50" />
               <p className="text-gray-700 font-semibold text-sm md:text-base">No Telegram tasks available</p>
@@ -947,7 +917,7 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
               </p>
             </div>
           ) : (
-            paginatedTasks.map((task) => {
+            filteredTasks.map((task) => {
               const completed = user?.tasksCompleted?.[task.id] || 0;
               const isCompleted = completed > 0;
               const isPending = pendingTask?.id === task.id;
@@ -1148,29 +1118,6 @@ function BonusPage({ user, updateUserData }: BonusPageProps) {
                 {taskErrors['claim-all']}
               </div>
             )}
-          </div>
-        )}
-
-        {/* Premium Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center mt-6 md:mt-8 space-x-3 md:space-x-4 mb-4 md:mb-6">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-2 md:px-5 md:py-3 text-xs md:text-sm rounded-xl bg-white/80 text-gray-700 disabled:opacity-40 hover:text-gray-900 hover:bg-white transition-all duration-300 border border-gray-300 shadow-sm hover:shadow-md font-semibold"
-            >
-              ← Previous
-            </button>
-            <span className="text-gray-700 text-xs md:text-sm font-bold min-w-[80px] md:min-w-[100px] text-center bg-white/80 px-3 py-2 md:px-4 md:py-3 rounded-xl border border-gray-300 shadow-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-2 md:px-5 md:py-3 text-xs md:text-sm rounded-xl bg-white/80 text-gray-700 disabled:opacity-40 hover:text-gray-900 hover:bg-white transition-all duration-300 border border-gray-300 shadow-sm hover:shadow-md font-semibold"
-            >
-              Next →
-            </button>
           </div>
         )}
       </div>
