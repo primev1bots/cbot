@@ -4,6 +4,7 @@ import {
   Link as LinkIcon,
   Clock,
   Sparkles,
+  CheckCircle,
 } from "lucide-react";
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, get, update, onValue, off } from 'firebase/database';
@@ -200,12 +201,10 @@ function useTelegramAuth() {
       const snapshot = await get(userRef);
 
       if (snapshot.exists()) {
-        // Existing user - update last login and ensure photoUrl exists
         const userData = snapshot.val() as UserData;
         const updatedUser = {
           ...userData,
           lastLogin: new Date().toISOString(),
-          // If photoUrl doesn't exist but we have it from Telegram, update it
           photoUrl: userData.photoUrl || telegramUser.photo_url
         };
 
@@ -213,7 +212,6 @@ function useTelegramAuth() {
           lastLogin: updatedUser.lastLogin
         };
 
-        // Only update photoUrl if it doesn't exist and we have it from Telegram
         if (telegramUser.photo_url && !userData.photoUrl) {
           updates.photoUrl = telegramUser.photo_url;
         }
@@ -222,16 +220,14 @@ function useTelegramAuth() {
         setUser(updatedUser);
         setShowWelcome(false);
 
-        // Set up real-time listener for this user
         setupRealtimeUpdates(telegramUser.id);
       } else {
-        // New user - create record
         const newUser: UserData = {
           telegramId: telegramUser.id,
           firstName: telegramUser.first_name,
           lastName: telegramUser.last_name,
           username: telegramUser.username,
-          photoUrl: telegramUser.photo_url, // Store the photo URL from Telegram
+          photoUrl: telegramUser.photo_url,
           joinDate: new Date().toISOString(),
           ...defaultUserData
         };
@@ -240,10 +236,8 @@ function useTelegramAuth() {
         setUser(newUser);
         setShowWelcome(true);
 
-        // Set up real-time listener for this user
         setupRealtimeUpdates(telegramUser.id);
 
-        // Hide welcome after 3 seconds
         setTimeout(() => setShowWelcome(false), 3000);
       }
     } catch (error) {
@@ -260,11 +254,9 @@ function useTelegramAuth() {
       if (snapshot.exists()) {
         const userData = snapshot.val() as UserData;
         setUser(userData);
-        console.log('Real-time update received:', userData);
       }
     });
 
-    // Return cleanup function
     return () => off(userRef, 'value', unsubscribe);
   };
 
@@ -274,7 +266,6 @@ function useTelegramAuth() {
     try {
       const userRef = ref(database, `users/${user.telegramId}`);
       await update(userRef, updates);
-      // Real-time listener will automatically update the state
     } catch (error) {
       console.error('Error updating user data:', error);
     }
@@ -301,8 +292,8 @@ function WelcomeModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-green-400 to-emerald-600 rounded-3xl p-8 text-center text-white max-w-sm w-full animate-bounce">
-        <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="bg-gradient-to-br from-green-400 to-emerald-600 rounded-3xl p-8 text-center text-white max-w-sm w-full animate-bounce shadow-2xl">
+        <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
           <Sparkles className="w-10 h-10 text-white" />
         </div>
         <h2 className="text-2xl font-bold mb-2">Welcome!</h2>
@@ -315,7 +306,7 @@ function WelcomeModal({
   );
 }
 
-/* ---------------- Reusable pieces ---------------- */
+/* ---------------- Watch Ad Card ---------------- */
 
 export function WatchAdCard({
   title = "Watch Ads",
@@ -339,7 +330,6 @@ export function WatchAdCard({
   const [isLoading, setIsLoading] = useState(false);
   const [cooldownLeft, setCooldownLeft] = useState(0);
 
-  // Calculate cooldown
   useEffect(() => {
     if (!user?.lastAdWatch) return;
 
@@ -371,7 +361,6 @@ export function WatchAdCard({
 
   const loadAndShowAd = async (): Promise<boolean> => {
     return new Promise((resolve, reject) => {
-      // Check if script is already loaded
       if (typeof window.showAdexora === 'function') {
         window.showAdexora()
           .then(() => resolve(true))
@@ -379,13 +368,11 @@ export function WatchAdCard({
         return;
       }
 
-      // Load the script dynamically
       const script = document.createElement('script');
       script.src = 'https://adexora.com/cdn/ads.js?id=1028';
       script.async = true;
 
       script.onload = () => {
-        // Wait a bit for the script to initialize
         setTimeout(() => {
           if (typeof window.showAdexora === 'function') {
             window.showAdexora()
@@ -407,9 +394,7 @@ export function WatchAdCard({
 
     setIsLoading(true);
     try {
-      // Load and show Adexora ad
       await loadAndShowAd();
-      // Only call onWatch if ad was successfully shown and completed
       await onWatch();
     } catch (error) {
       console.error('Error watching ad:', error);
@@ -434,50 +419,49 @@ export function WatchAdCard({
         onClick={handleClick}
         disabled={isAdDisabled || isLoading}
         className={[
-          "w-full text-left bg-gradient-to-r from-green-400/60 to-emerald-500/60 backdrop-blur-md rounded-xl px-4 py-2.5 shadow-md border border-green-300 flex items-center justify-between transition-all duration-300",
-          isAdDisabled ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02] cursor-pointer",
+          "w-full text-left bg-gradient-to-r from-green-400/80 to-emerald-500/80 backdrop-blur-md rounded-2xl px-5 py-3.5 shadow-md border border-green-300 flex items-center justify-between transition-all duration-300",
+          isAdDisabled ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02] hover:shadow-lg cursor-pointer",
           isLoading ? "opacity-80 cursor-wait" : "",
         ].join(" ")}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-white/20 flex items-start overflow-hidden">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-white/20 flex items-start overflow-hidden shadow-sm">
               <img
-                src="/adexora.png"     // <-- your image here
+                src="/adexora.png"
                 alt="Play Icon"
                 className="w-full h-full object-cover"
               />
             </div>
 
             {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-xl backdrop-blur-sm">
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               </div>
             )}
           </div>
 
           <div className="text-white">
-            <p className="text-[14px] font-semibold leading-tight">{title}</p>
-            <p className="text-[12px] text-white/90 leading-tight">
+            <p className="text-[15px] font-bold leading-tight">{title}</p>
+            <p className="text-[12px] text-white/90 leading-tight mt-0.5 font-medium">
               {getButtonText()}
             </p>
-            <p className="text-[11px] text-white/90 mt-1">
-              Watched: <span className="font-semibold">{watched}/{adConfig.dailyLimit}</span>
+            <p className="text-[11px] text-white/80 mt-1">
+              Watched: <span className="font-bold">{watched}/{adConfig.dailyLimit}</span>
             </p>
           </div>
         </div>
 
-        <div className="text-right">
-          {/* Changed from Coin to Key */}
-          <p className="text-[13px] font-semibold text-white">+{adConfig.reward} Key</p>
-          <p className="text-[10px] text-white/70">{per}</p>
+        <div className="text-right bg-white/20 px-3 py-2 rounded-xl border border-white/20">
+          <p className="text-[14px] font-bold text-white whitespace-nowrap">+{adConfig.reward} Key</p>
+          <p className="text-[10px] text-white/80 font-medium">{per}</p>
         </div>
       </button>
     </div>
   );
 }
 
-/* ---------------- Direct Task Item with UTC Time Validation ---------------- */
+/* ---------------- Improved Direct Task Item Component ---------------- */
 
 export function DirectTaskItem({
   icon,
@@ -640,71 +624,68 @@ export function DirectTaskItem({
   }, []);
 
   return (
-    <div className="w-full text-left rounded-2xl px-4 py-3 shadow-md border bg-gradient-to-r from-white/70 to-white/60 border-white/60 flex items-center justify-between text-gray-900 transition-transform">
-      <div className="flex items-center gap-3 flex-1">
-        <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-blue-50 flex items-center justify-center shadow border border-blue-100">
-          {icon}
+    <div className={`w-full text-left rounded-2xl p-4 shadow-sm border transition-all duration-300 ${claimed ? 'bg-gray-50/80 border-gray-200 opacity-75' : 'bg-white border-blue-100 hover:shadow-md hover:border-blue-300'}`}>
+      <div className="flex items-center gap-3">
+        {/* Visual Identity / Icon */}
+        <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${claimed ? 'bg-green-100 text-green-500' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
+          {claimed ? <CheckCircle className="w-5 h-5" /> : icon}
         </div>
+
+        {/* Info Block */}
         <div className="flex-1 min-w-0">
-          <p className="text-[14px] font-semibold truncate">{title}</p>
-
-          <div className="flex items-center gap-1 mt-1">
-            <div className="bg-green-500/20 text-green-700 px-2 py-0.5 rounded-lg border border-green-500/30">
-              <span className="text-[11px] font-semibold">{rewardLabel}</span>
-            </div>
+          <h3 className={`text-[15px] font-bold truncate ${claimed ? 'text-gray-500 line-through' : 'text-gray-800'}`}>
+            {title}
+          </h3>
+          <div className="mt-1 flex items-center gap-2">
+            <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-bold tracking-wide ${claimed ? 'bg-gray-200 text-gray-500' : 'bg-green-100 text-green-700 border border-green-200'}`}>
+              {rewardLabel}
+            </span>
+            {isWaiting && !canClaim && (
+              <span className="text-[11px] text-blue-600 font-bold flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                <Clock className="w-3 h-3" /> {timeLeft}s remaining
+              </span>
+            )}
           </div>
+        </div>
 
-          {isWaiting && (
-            <div className="mt-2">
-              <div className="flex items-center gap-2">
-                <Clock className={`w-3 h-3 ${canClaim ? 'text-green-600' : 'text-blue-600'}`} />
-                <span className={`text-[11px] font-medium ${canClaim ? 'text-green-600' : 'text-blue-600'
-                  }`}>
-                  {canClaim
-                    ? "Task completed"
-                    : `Stay for: ${timeLeft}s (Don't return early!)`
-                  }
-                </span>
-              </div>
-              {!canClaim && (
-                <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                  <div
-                    className="bg-green-500 h-1.5 rounded-full transition-all duration-1000"
-                    style={{
-                      width: `${((waitTime - timeLeft) / waitTime) * 100}%`
-                    }}
-                  />
-                </div>
-              )}
-            </div>
+        {/* Call to Action Button */}
+        <div className="flex-shrink-0 ml-2">
+          {claimed ? (
+            <span className="text-[12px] font-bold text-green-600 flex items-center gap-1 bg-green-50 px-3 py-1.5 rounded-lg border border-green-100">
+              <Sparkles className="w-3.5 h-3.5" /> Claimed
+            </span>
+          ) : isWaiting ? (
+            <button
+              onClick={handleClaim}
+              disabled={!canClaim}
+              className={`px-4 py-2 rounded-xl text-[12px] font-bold transition-all duration-300 ${canClaim
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-md hover:shadow-lg transform hover:scale-[1.05]'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
+            >
+              {canClaim ? '🎉 Claim Now' : 'Waiting...'}
+            </button>
+          ) : (
+            <button
+              onClick={startTask}
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl text-[12px] font-bold transition-all flex items-center gap-1.5 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              <LinkIcon className="w-3.5 h-3.5" />
+              Start Task
+            </button>
           )}
         </div>
       </div>
 
-      <div className="text-right flex-shrink-0 ml-2">
-        {claimed ? (
-          <span className="text-[12px] font-semibold text-gray-500">Claimed</span>
-        ) : isWaiting ? (
-          <button
-            onClick={handleClaim}
-            disabled={!canClaim}
-            className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-300 ${canClaim
-                ? 'bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg transform hover:scale-105'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-          >
-            {canClaim ? '🎉 Claim Now!' : `${timeLeft}s`}
-          </button>
-        ) : (
-          <button
-            onClick={startTask}
-            className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-[11px] font-semibold transition-colors flex items-center gap-1 shadow-md hover:shadow-lg"
-          >
-            <LinkIcon className="w-3 h-3" />
-            Start
-          </button>
-        )}
-      </div>
+      {/* Animated Progress Bar Row */}
+      {isWaiting && !canClaim && (
+        <div className="mt-3.5 w-full bg-gray-100 rounded-full h-1.5 overflow-hidden shadow-inner">
+          <div
+            className="bg-gradient-to-r from-blue-400 to-indigo-500 h-full rounded-full transition-all duration-1000 ease-linear"
+            style={{ width: `${((waitTime - timeLeft) / waitTime) * 100}%` }}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -721,11 +702,9 @@ function TasksPage({
   const adConfig = useAdConfig();
   const adexoraConfig = adConfig.adexora;
 
-  // State for direct tasks from Firebase
   const [directTasks, setDirectTasks] = useState<any[]>([]);
   const [loadingDirectTasks, setLoadingDirectTasks] = useState(true);
 
-  // Load direct tasks from Firebase
   useEffect(() => {
     const loadDirectTasks = () => {
       setLoadingDirectTasks(true);
@@ -735,7 +714,6 @@ function TasksPage({
           const tasksData: any[] = [];
           snapshot.forEach((childSnapshot) => {
             const taskData = childSnapshot.val();
-            // Only include direct tasks
             if (taskData.taskType === 'direct') {
               tasksData.push({
                 ...taskData,
@@ -765,7 +743,6 @@ function TasksPage({
         ...user.watchedAds,
         ad3: currentWatched + 1
       },
-      // Changed from coins to keys - only give keys now
       keys: (user.keys || 0) + adexoraConfig.reward,
       lastAdWatch: {
         ...user.lastAdWatch,
@@ -781,7 +758,6 @@ function TasksPage({
   const claimDirectTask = (taskId: string, rewardType: string, rewardAmount: number) => {
     if (!user) return;
 
-    // Check if task is already claimed
     const isCompleted = user.tasksCompleted?.[taskId] || 0;
     if (isCompleted > 0) {
       alert('This task has already been completed!');
@@ -795,56 +771,46 @@ function TasksPage({
       }
     };
 
-    // MODIFIED: Only give keys for direct tasks, ignore coin rewards
-    if (rewardType === 'coin') {
-      // Convert coin rewards to keys (1:1 ratio)
+    // FIXED LOGIC: 'both' now correctly adds ONLY the exact reward amount (no +1)
+    if (rewardType === 'coin' || rewardType === 'key' || rewardType === 'both') {
       updates.keys = (user.keys || 0) + rewardAmount;
-    } else if (rewardType === 'key') {
-      updates.keys = (user.keys || 0) + rewardAmount;
-    } else if (rewardType === 'both') {
-      // For "both" type, only give keys (sum of both amounts)
-      updates.keys = (user.keys || 0) + rewardAmount + 1;
     }
 
     updateUserData(updates);
   };
 
-  const totalKeys =
-    (user?.watchedAds.ad3 || 0) * adexoraConfig.reward + // Keys from ads
-    (Object.values(user?.tasksCompleted || {}).filter(completed => completed > 0).length || 0);
+  // FIXED LOGIC: directly fetching actual keys balance from the user database object
+  const totalKeys = user?.keys || 0;
 
-  // Format reward display - updated to show only keys
+  // FIXED LOGIC: formatReward now displays the exact reward amount without adding +1
   const formatReward = (task: any) => {
-    if (task.rewardType === 'coin') {
-      return `+${task.rewardAmount} Key${task.rewardAmount > 1 ? 's' : ''}`;
-    } else if (task.rewardType === 'key') {
-      return `+${task.rewardAmount} Key${task.rewardAmount > 1 ? 's' : ''}`;
-    } else if (task.rewardType === 'both') {
-      const totalKeys = task.rewardAmount + 1;
-      return `+${totalKeys} Key${totalKeys > 1 ? 's' : ''}`;
-    }
     return `+${task.rewardAmount} Key${task.rewardAmount > 1 ? 's' : ''}`;
   };
 
   return (
-    <div className="px-4 mt-4 md:mt-6 pb-32 md:pb-40 space-y-4 md:space-y-6">
-      <div className="bg-[#ffffffcc] backdrop-blur-md rounded-2xl px-4 py-4 shadow-md border border-white/40">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center justify-between w-full">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-yellow-300/80 to-amber-400/80 flex items-center justify-center shadow">
-              <KeyRound className="w-5 h-5 md:w-7 md:h-7 text-white drop-shadow" />
+    <div className="px-4 mt-4 md:mt-6 pb-32 md:pb-40 space-y-4 md:space-y-6 max-w-lg mx-auto">
+      {/* Total Keys Banner */}
+      <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-2xl px-5 py-5 shadow-lg shadow-amber-500/20 text-white relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/20 flex items-center justify-center shadow-inner backdrop-blur-sm border border-white/30">
+              <KeyRound className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-md" />
             </div>
-
-            <div className="text-right">
-              <p className="text-[12px] md:text-[14px] text-gray-700">Total Keys Earned</p>
-              <p className="text-[18px] md:text-[22px] font-bold text-gray-900 leading-tight">{totalKeys}</p>
+            <div>
+              <p className="text-[13px] md:text-[15px] font-medium text-amber-50">Total Keys Earned</p>
+              <p className="text-[24px] md:text-[28px] font-bold leading-tight drop-shadow-sm">{totalKeys}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#ffffffcc] backdrop-blur-md rounded-2xl px-4 py-4 shadow-md border border-white/40">
-        <p className="text-[16px] md:text-[18px] font-semibold text-gray-900 leading-tight">Ad Tasks</p>
+      {/* Ad Tasks Section */}
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl px-5 py-5 shadow-sm border border-gray-100">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-6 bg-green-500 rounded-full"></div>
+          <h2 className="text-[18px] md:text-[20px] font-bold text-gray-800">Ad Tasks</h2>
+        </div>
 
         <WatchAdCard
           title="Watch Video Ad"
@@ -859,17 +825,21 @@ function TasksPage({
         />
       </div>
 
-      <div className="bg-[#ffffffcc] backdrop-blur-md rounded-2xl px-4 py-4 shadow-md border border-white/40">
-        <p className="text-[16px] md:text-[18px] font-semibold text-gray-900 leading-tight mb-3">Direct Tasks</p>
+      {/* Direct Tasks Section */}
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl px-5 py-5 shadow-sm border border-gray-100">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-2 h-6 bg-blue-500 rounded-full"></div>
+          <h2 className="text-[18px] md:text-[20px] font-bold text-gray-800">Direct Tasks</h2>
+        </div>
 
         {loadingDirectTasks ? (
-          <div className="flex justify-center py-4">
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex justify-center py-8">
+            <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : directTasks.length === 0 ? (
-          <div className="text-center py-6 text-gray-500">
-            <p>No direct tasks available</p>
-            <p className="text-sm">Check back later for new tasks</p>
+          <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+            <p className="text-gray-600 font-medium">No tasks available right now</p>
+            <p className="text-sm text-gray-400 mt-1">Check back later for new rewards</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -879,7 +849,7 @@ function TasksPage({
               return (
                 <DirectTaskItem
                   key={task.id}
-                  icon={<LinkIcon className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />}
+                  icon={<LinkIcon className="w-5 h-5 md:w-6 md:h-6" />}
                   title={task.name}
                   claimed={isCompleted > 0}
                   onClaim={() => claimDirectTask(task.id, task.rewardType, task.rewardAmount)}
@@ -909,15 +879,15 @@ const App: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3 md:mb-4"></div>
-          <p className="text-gray-600 text-sm md:text-base">Loading...</p>
+          <p className="text-gray-600 text-sm md:text-base font-medium">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#F2F2F2] flex justify-center min-h-screen">
-      <div className="w-full text-black font-bold flex flex-col max-w-xl relative">
+    <div className="bg-gray-50 flex justify-center min-h-screen font-sans">
+      <div className="w-full flex flex-col max-w-md relative bg-white min-h-screen shadow-xl">
         <WelcomeModal
           show={showWelcome}
           userName={user?.firstName || "User"}
