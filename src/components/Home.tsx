@@ -775,34 +775,38 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
           {/* Spin & Win */}
           <div className="bg-[#ffffffcc] backdrop-blur-md rounded-2xl px-4 py-4 shadow-md border border-white/40">
-            <div className="flex flex-col items-center text-center">
-              <p className="text-[16px] md:text-[18px] font-semibold text-gray-900 leading-tight mb-2">
-                🎡 স্পিন করুন ও পয়েন্ট জিতুন!
-              </p>
-              {/* Spin & Win */}
+            <div>
+              <p className="text-[16px] md:text-[18px] font-semibold text-gray-900 leading-tight">Spin & Win</p>
+              <p className="text-xs text-gray-600 mt-1">Spin the wheel to earn exciting rewards!</p>
+            </div>
+
+            <div className="mt-3">
               <button
                 onClick={onNavigateToSpin}
                 className="w-full text-left bg-gradient-to-r from-pink-500/60 to-purple-500/60 backdrop-blur-md rounded-xl px-4 py-2.5 shadow-md border border-pink-300 flex items-center justify-between transition-all duration-300 hover:scale-[1.02] cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 rounded-full flex items-center justify-center">
-                      {/* Spin Icon */}
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-lg flex items-center justify-center overflow-hidden">
+                      {/* Spin Icon scaled up to fit the new layout */}
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
                       </svg>
                     </div>
                   </div>
                   <div className="text-white">
-                    <p className="text-[14px] font-semibold leading-tight">Spin & Win</p>
-                    <p className="text-[12px] text-white/90 leading-tight">
-                      Spin the wheel and win coins!
+                    <p className="text-[14px] font-semibold leading-tight">Lucky Spin</p>
+                    <p className="text-[12px] text-white/90 leading-tight mt-1">
+                      Test your luck today
+                    </p>
+                    <p className="text-[11px] text-white/90 mt-1">
+                      Status: <span className="font-semibold">Available</span>
                     </p>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <p className="text-[13px] font-semibold text-white">Free Spin</p>
+                  <p className="text-[13px] font-semibold text-white">Win Coins</p>
                   <p className="text-[10px] text-white/70">Tap to Play</p>
                 </div>
               </button>
