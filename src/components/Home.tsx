@@ -606,7 +606,7 @@ const Home: React.FC<HomeProps> = ({ onNavigateToSpin, user, updateUserData }) =
 
             <div>
               <p className="text-[16px] md:text-[18px] font-bold text-gray-900 drop-shadow-sm">
-                Coin Earn
+                Coin Bazar
               </p>
             </div>
           </div>
