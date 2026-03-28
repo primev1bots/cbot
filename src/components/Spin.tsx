@@ -31,7 +31,7 @@ const SpinPage: React.FC<SpinPageProps> = ({ onBack, user, updateUserData }) => 
   ];
 
   // Exact weights as percentages (multiplied by 100 for precision)
-  const weights = [40, 60, 400, 1000, 2500, 2000, 2000, 2000]; // Total: 10000 (100%)
+  const weights = [10, 20, 100, 500, 8000, 500, 500, 370];// Total: 10000 (100%)
 
   const segmentCount = prizes.length;
   const segmentAngle = 360 / segmentCount;
