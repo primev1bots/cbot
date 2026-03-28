@@ -46,7 +46,7 @@ const Refer: React.FC<ReferProps> = ({ user }) => {
 
   const referralLink =
     typeof window !== "undefined"
-      ? `https://t.me/fjdhfjwjhbot?start=${user?.telegramId}`
+      ? `https://t.me/coinbazarBD_bot?start=${user?.telegramId}`
       : "";
 
   useEffect(() => {
